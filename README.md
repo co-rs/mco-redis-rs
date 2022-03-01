@@ -31,7 +31,7 @@ Many commands are implemented through the `Commands` trait but manual
 command creation is also possible.
 
 ```rust
-extern crate redis;
+extern crate mco_redis_rs as redis;
 use redis::Commands;
 
 fn fetch_an_integer() -> redis::RedisResult<isize> {
@@ -53,10 +53,10 @@ To enable asynchronous clients a feature for the underlying feature need to be a
 
 ```
 # if you use tokio
-redis = { version = "0.17.0", features = ["tokio-comp"] }
+mco-redis-rs = { version = "0.17.0", features = ["tokio-comp"] }
 
 # if you use async-std
-redis = { version = "0.17.0", features = ["async-std-comp"] }
+mco-redis-rs = { version = "0.17.0", features = ["async-std-comp"] }
 ```
 
 ## TLS Support
@@ -64,13 +64,13 @@ redis = { version = "0.17.0", features = ["async-std-comp"] }
 To enable TLS support, you need to use the relevant feature entry in your Cargo.toml.
 
 ```
-redis = { version = "0.19.0", features = ["tls"] }
+mco-redis-rs = { version = "0.19.0", features = ["tls"] }
 
 # if you use tokio
-redis = { version = "0.19.0", features = ["tokio-native-tls-comp"] }
+mco-redis-rs = { version = "0.19.0", features = ["tokio-native-tls-comp"] }
 
 # if you use async-std
-redis = { version = "0.19.0", features = ["async-std-tls-comp"] }
+mco-redis-rs = { version = "0.19.0", features = ["async-std-tls-comp"] }
 ```
 
 then you should be able to connect to a redis instance using the `rediss://` URL scheme:
@@ -83,7 +83,7 @@ let client = redis::Client::open("rediss://127.0.0.1/")?;
 
 Cluster mode can be used by specifying "cluster" as a features entry in your Cargo.toml.
 
-`redis = { version = "0.17.0", features = [ "cluster"] }`
+`mco-redis-rs = { version = "0.17.0", features = [ "cluster"] }`
 
 Then you can simply use the `ClusterClient` which accepts a list of available nodes.
 
