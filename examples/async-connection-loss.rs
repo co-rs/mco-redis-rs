@@ -11,8 +11,8 @@ use std::process;
 use std::time::Duration;
 
 use futures::future;
-use redis::aio::ConnectionLike;
-use redis::RedisResult;
+use mco_redis_rs::aio::ConnectionLike;
+use mco_redis_rs::RedisResult;
 use tokio::time::interval;
 
 enum Mode {
@@ -27,7 +27,7 @@ async fn run_single<C: ConnectionLike>(mut con: C) -> RedisResult<()> {
         interval.tick().await;
         println!();
         println!("> PING");
-        let result: RedisResult<String> = redis::cmd("PING").query_async(&mut con).await;
+        let result: RedisResult<String> = mco_redis_rs::cmd("PING").query_async(&mut con).await;
         println!("< {:?}", result);
     }
 }
@@ -45,9 +45,9 @@ async fn run_multi<C: ConnectionLike + Clone>(mut con: C) -> RedisResult<()> {
             RedisResult<String>,
             RedisResult<String>,
         ) = future::join3(
-            redis::cmd("PING").query_async(&mut con.clone()),
-            redis::cmd("PING").query_async(&mut con.clone()),
-            redis::cmd("PING").query_async(&mut con),
+            mco_redis_rs::cmd("PING").query_async(&mut con.clone()),
+            mco_redis_rs::cmd("PING").query_async(&mut con.clone()),
+            mco_redis_rs::cmd("PING").query_async(&mut con),
         )
         .await;
         println!("< {:?}", results.0);
@@ -77,7 +77,7 @@ async fn main() -> RedisResult<()> {
         }
     };
 
-    let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+    let client = mco_redis_rs::Client::open("redis://127.0.0.1/").unwrap();
     match mode {
         Mode::Default => run_single(client.get_async_connection().await?).await?,
         Mode::Multiplexed => run_multi(client.get_multiplexed_tokio_connection().await?).await?,

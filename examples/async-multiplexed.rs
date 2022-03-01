@@ -1,5 +1,5 @@
 use futures::{future, prelude::*};
-use redis::{aio::MultiplexedConnection, RedisResult};
+use mco_redis_rs::{aio::MultiplexedConnection, RedisResult};
 
 async fn test_cmd(con: &MultiplexedConnection, i: i32) -> RedisResult<()> {
     let mut con = con.clone();
@@ -8,18 +8,18 @@ async fn test_cmd(con: &MultiplexedConnection, i: i32) -> RedisResult<()> {
     let key2 = format!("key{}_2", i);
     let value = format!("foo{}", i);
 
-    redis::cmd("SET")
+    mco_redis_rs::cmd("SET")
         .arg(&key[..])
         .arg(&value)
         .query_async(&mut con)
         .await?;
 
-    redis::cmd("SET")
+    mco_redis_rs::cmd("SET")
         .arg(&[&key2, "bar"])
         .query_async(&mut con)
         .await?;
 
-    redis::cmd("MGET")
+    mco_redis_rs::cmd("MGET")
         .arg(&[&key, &key2])
         .query_async(&mut con)
         .map(|result| {
@@ -31,7 +31,7 @@ async fn test_cmd(con: &MultiplexedConnection, i: i32) -> RedisResult<()> {
 
 #[tokio::main]
 async fn main() {
-    let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+    let client = mco_redis_rs::Client::open("redis://127.0.0.1/").unwrap();
 
     let con = client.get_multiplexed_tokio_connection().await.unwrap();
 

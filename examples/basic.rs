@@ -1,4 +1,4 @@
-use redis::{self, transaction, Commands};
+use mco_redis_rs::{self, transaction, Commands};
 
 use std::collections::HashMap;
 use std::env;
@@ -7,11 +7,11 @@ use std::env;
 /// hashmap of tuples.  This is particularly useful for responses like
 /// CONFIG GET or all most H functions which will return responses in
 /// such list of implied tuples.
-fn do_print_max_entry_limits(con: &mut redis::Connection) -> redis::RedisResult<()> {
+fn do_print_max_entry_limits(con: &mut mco_redis_rs::Connection) -> mco_redis_rs::RedisResult<()> {
     // since rust cannot know what format we actually want we need to be
     // explicit here and define the type of our response.  In this case
     // String -> int fits all the items we query for.
-    let config: HashMap<String, isize> = redis::cmd("CONFIG")
+    let config: HashMap<String, isize> = mco_redis_rs::cmd("CONFIG")
         .arg("GET")
         .arg("*-max-*-entries")
         .query(con)?;
@@ -41,11 +41,11 @@ fn do_print_max_entry_limits(con: &mut redis::Connection) -> redis::RedisResult<
 /// This is a pretty stupid example that demonstrates how to create a large
 /// set through a pipeline and how to iterate over it through implied
 /// cursors.
-fn do_show_scanning(con: &mut redis::Connection) -> redis::RedisResult<()> {
+fn do_show_scanning(con: &mut mco_redis_rs::Connection) -> mco_redis_rs::RedisResult<()> {
     // This makes a large pipeline of commands.  Because the pipeline is
     // modified in place we can just ignore the return value upon the end
     // of each iteration.
-    let mut pipe = redis::pipe();
+    let mut pipe = mco_redis_rs::pipe();
     for num in 0..1000 {
         pipe.cmd("SADD").arg("my_set").arg(num).ignore();
     }
@@ -56,7 +56,7 @@ fn do_show_scanning(con: &mut redis::Connection) -> redis::RedisResult<()> {
 
     // since rust currently does not track temporaries for us, we need to
     // store it in a local variable.
-    let mut cmd = redis::cmd("SSCAN");
+    let mut cmd = mco_redis_rs::cmd("SSCAN");
     cmd.arg("my_set").cursor_arg(0);
 
     // as a simple exercise we just sum up the iterator.  Since the fold
@@ -70,24 +70,24 @@ fn do_show_scanning(con: &mut redis::Connection) -> redis::RedisResult<()> {
 }
 
 /// Demonstrates how to do an atomic increment in a very low level way.
-fn do_atomic_increment_lowlevel(con: &mut redis::Connection) -> redis::RedisResult<()> {
+fn do_atomic_increment_lowlevel(con: &mut mco_redis_rs::Connection) -> mco_redis_rs::RedisResult<()> {
     let key = "the_key";
     println!("Run low-level atomic increment:");
 
     // set the initial value so we have something to test with.
-    redis::cmd("SET").arg(key).arg(42).query(con)?;
+    mco_redis_rs::cmd("SET").arg(key).arg(42).query(con)?;
 
     loop {
         // we need to start watching the key we care about, so that our
         // exec fails if the key changes.
-        redis::cmd("WATCH").arg(key).query(con)?;
+        mco_redis_rs::cmd("WATCH").arg(key).query(con)?;
 
         // load the old value, so we know what to increment.
-        let val: isize = redis::cmd("GET").arg(key).query(con)?;
+        let val: isize = mco_redis_rs::cmd("GET").arg(key).query(con)?;
 
         // at this point we can go into an atomic pipe (a multi block)
         // and set up the keys.
-        let response: Option<(isize,)> = redis::pipe()
+        let response: Option<(isize,)> = mco_redis_rs::pipe()
             .atomic()
             .cmd("SET")
             .arg(key)
@@ -113,7 +113,7 @@ fn do_atomic_increment_lowlevel(con: &mut redis::Connection) -> redis::RedisResu
 }
 
 /// Demonstrates how to do an atomic increment with transaction support.
-fn do_atomic_increment(con: &mut redis::Connection) -> redis::RedisResult<()> {
+fn do_atomic_increment(con: &mut mco_redis_rs::Connection) -> mco_redis_rs::RedisResult<()> {
     let key = "the_key";
     println!("Run high-level atomic increment:");
 
@@ -135,9 +135,9 @@ fn do_atomic_increment(con: &mut redis::Connection) -> redis::RedisResult<()> {
 }
 
 /// Runs all the examples and propagates errors up.
-fn do_redis_code(url: &str) -> redis::RedisResult<()> {
+fn do_redis_code(url: &str) -> mco_redis_rs::RedisResult<()> {
     // general connection handling
-    let client = redis::Client::open(url)?;
+    let client = mco_redis_rs::Client::open(url)?;
     let mut con = client.get_connection()?;
 
     // read some config and print it.

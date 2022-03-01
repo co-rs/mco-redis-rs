@@ -1,9 +1,9 @@
 use futures_util::StreamExt as _;
-use redis::AsyncCommands;
+use mco_redis_rs::AsyncCommands;
 
 #[tokio::main]
-async fn main() -> redis::RedisResult<()> {
-    let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+async fn main() -> mco_redis_rs::RedisResult<()> {
+    let client = mco_redis_rs::Client::open("redis://127.0.0.1/").unwrap();
     let mut publish_conn = client.get_async_connection().await?;
     let mut pubsub_conn = client.get_async_connection().await?.into_pubsub();
 

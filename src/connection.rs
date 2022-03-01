@@ -1,6 +1,6 @@
 use std::fmt;
 use std::io::{self, Write};
-use std::net::{self, TcpStream, ToSocketAddrs};
+use std::net::{self, ToSocketAddrs};
 use std::path::PathBuf;
 use std::str::{from_utf8, FromStr};
 use std::time::Duration;
@@ -13,7 +13,18 @@ use crate::types::{
 };
 
 #[cfg(unix)]
+#[cfg(not(feature = "mco"))]
 use std::os::unix::net::UnixStream;
+
+#[cfg(not(feature = "mco"))]
+use std::net::TcpStream;
+
+#[cfg(feature = "mco")]
+use mco::net::TcpStream;
+
+#[cfg(feature = "mco")]
+use mco::net::TcpStream as UnixStream;
+
 
 #[cfg(feature = "tls")]
 use native_tls::{TlsConnector, TlsStream};

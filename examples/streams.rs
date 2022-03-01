@@ -1,8 +1,8 @@
 #![cfg(feature = "streams")]
 
-use redis::streams::{StreamId, StreamKey, StreamMaxlen, StreamReadOptions, StreamReadReply};
+use mco_redis_rs::streams::{StreamId, StreamKey, StreamMaxlen, StreamReadOptions, StreamReadReply};
 
-use redis::{Commands, RedisResult, Value};
+use mco_redis_rs::{Commands, RedisResult, Value};
 
 use std::thread;
 use std::time::Duration;
@@ -21,7 +21,7 @@ const SLOWNESSES: &[u8] = &[2, 3, 4];
 /// that demonstrates basic usage of both the XREAD and XREADGROUP
 /// commands.
 fn main() {
-    let client = redis::Client::open("redis://127.0.0.1/").expect("client");
+    let client = mco_redis_rs::Client::open("redis://127.0.0.1/").expect("client");
 
     println!("Demonstrating XADD followed by XREAD, single threaded\n");
 
@@ -34,7 +34,7 @@ fn main() {
     clean_up(&client)
 }
 
-fn demo_group_reads(client: &redis::Client) {
+fn demo_group_reads(client: &mco_redis_rs::Client) {
     println!("\n\nDemonstrating a longer stream of data flowing\nin over time, consumed by multiple threads using XREADGROUP\n");
 
     let mut handles = vec![];
@@ -117,7 +117,7 @@ fn demo_group_reads(client: &redis::Client) {
 
 /// Generate some contrived records and add them to various
 /// streams.
-fn add_records(client: &redis::Client) -> RedisResult<()> {
+fn add_records(client: &mco_redis_rs::Client) -> RedisResult<()> {
     let mut con = client.get_connection().expect("conn");
 
     let maxlen = StreamMaxlen::Approx(1000);
@@ -201,7 +201,7 @@ const BLOCK_MILLIS: usize = 5000;
 /// ID from which they need to read, but in this example, we
 /// just go back to the beginning of time and ask for all the
 /// records in the stream.
-fn read_records(client: &redis::Client) -> RedisResult<()> {
+fn read_records(client: &mco_redis_rs::Client) -> RedisResult<()> {
     let mut con = client.get_connection().expect("conn");
 
     let opts = StreamReadOptions::default().block(BLOCK_MILLIS);
@@ -238,7 +238,7 @@ fn consumer_name(slowness: u8) -> String {
 
 const GROUP_NAME: &str = "example-group-aaa";
 
-fn read_group_records(client: &redis::Client, slowness: u8) -> RedisResult<StreamReadReply> {
+fn read_group_records(client: &mco_redis_rs::Client, slowness: u8) -> RedisResult<StreamReadReply> {
     let mut con = client.get_connection().expect("conn");
 
     let opts = StreamReadOptions::default()
@@ -257,7 +257,7 @@ fn read_group_records(client: &redis::Client, slowness: u8) -> RedisResult<Strea
     Ok(srr)
 }
 
-fn clean_up(client: &redis::Client) {
+fn clean_up(client: &mco_redis_rs::Client) {
     let mut con = client.get_connection().expect("con");
     for k in STREAMS {
         let trimmed: RedisResult<()> = con.xtrim(*k, StreamMaxlen::Equals(0));

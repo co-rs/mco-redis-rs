@@ -1,10 +1,10 @@
 use std::process::exit;
 
-use redis::RedisResult;
+use mco_redis_rs::RedisResult;
 
 #[cfg(feature = "geospatial")]
 fn run() -> RedisResult<()> {
-    use redis::{geo, Commands};
+    use mco_redis_rs::{geo, Commands};
     use std::env;
     use std::f64;
 
@@ -13,7 +13,7 @@ fn run() -> RedisResult<()> {
         Err(..) => "redis://127.0.0.1/".to_string(),
     };
 
-    let client = redis::Client::open(redis_url.as_str())?;
+    let client = mco_redis_rs::Client::open(redis_url.as_str())?;
     let mut con = client.get_connection()?;
 
     // Add some members to the geospatial index.
