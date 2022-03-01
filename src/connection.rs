@@ -445,7 +445,7 @@ impl ActualConnection {
             }
             #[cfg(unix)]
             ConnectionAddr::Unix(ref path) => ActualConnection::Unix(UnixConnection {
-                sock: UnixStream::connect(path)?,
+                sock: UnixStream::connect(path.to_str().unwrap_or_default())?,
                 open: true,
             }),
             #[cfg(not(unix))]

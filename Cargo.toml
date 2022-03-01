@@ -1,6 +1,6 @@
 [package]
 name = "mco-redis-rs"
-version = "0.21.5"
+version = "0.21.6"
 authors = ["zhuxiujia@qq.com","Armin Ronacher <armin.ronacher@active-4.com>", "Jan-Erik Rediger <janerik@fnordig.de>"]
 keywords = ["redis", "database"]
 description = "Redis driver for Rust."
